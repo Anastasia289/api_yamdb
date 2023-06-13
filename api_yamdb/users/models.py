@@ -18,7 +18,9 @@ class User(AbstractUser):
         max_length=150,
         unique=True,
         verbose_name='Логин',
-        validators=([RegexValidator(regex=r'^[\w.@+-]+$')]))
+        validators=([RegexValidator(
+            regex=r'^(?!me$).*$',
+            message='Неподходящий логин. "me" использовать запрещено.')]))
     email = models.EmailField(
         max_length=254,
         unique=True,
