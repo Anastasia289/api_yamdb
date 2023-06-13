@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from users.models import User
+from reviews import models
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -30,3 +31,21 @@ class TokenSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('username', 'confirmation_code')
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Category
+        fields = '__all__'
+
+
+class GenreSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Genre
+        fields = '__all__'
+
+
+class TitlesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Titles
+        fields = '__all__'

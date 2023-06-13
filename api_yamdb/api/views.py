@@ -2,14 +2,15 @@ from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.core.management.utils import get_random_secret_key
 from django.shortcuts import get_object_or_404
-from rest_framework import status
+from rest_framework import status, viewsets
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import AccessToken
 
 from users.models import User
-from .serializers import SignUpSerializer, TokenSerializer
+from .serializers import SignUpSerializer, TokenSerializer, CategorySerializer, GenreSerializer, TitlesSerializer
+from reviews.models import Category, Genre, Titles
 
 
 class SignUpView(APIView):
@@ -53,3 +54,18 @@ class TokenView(APIView):
                 status=status.HTTP_400_BAD_REQUEST)
         token = AccessToken.for_user(user)
         return Response({'token': str(token)}, status=status.HTTP_200_OK)
+
+
+class CategoryViewSet(viewsets.ModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+
+
+class GenreViewSet(viewsets.ModelViewSet):
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+
+
+class TitlesViewSet(viewsets.ModelViewSet):
+    queryset = Titles.objects.all()
+    serializer_class = TitlesSerializer

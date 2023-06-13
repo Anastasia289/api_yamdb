@@ -1,10 +1,6 @@
-from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator
 from django.db import models
 from datetime import datetime
-
-
-User = get_user_model()
 
 
 class Category(models.Model):
@@ -36,14 +32,16 @@ class Genre(models.Model):
 class Titles(models.Model):
     """Произведения."""
 
-    name = models.CharField(max_length=256)
+    name = models.CharField('Наименоввание', max_length=256)
     year = models.IntegerField(
-        validators=[
-            MaxValueValidator(int(datetime.now().year),
-                              message='Год не должен быть больше текущего')])
-    description = models.TextField()
+        'год создания',
+        validators=[MaxValueValidator(
+            int(datetime.now().year),
+            message='Год не должен быть больше текущего')])
+    description = models.TextField('Описание')
     category = models.ForeignKey(
-        Category, on_delete=models.SET_NULL, related_name='titles', null=True)
+        Category, on_delete=models.SET_NULL, related_name='titles', null=True,
+        verbose_name='Категория')
     genre = models.ManyToManyField(Genre, related_name='titles')
 
     class Meta:
