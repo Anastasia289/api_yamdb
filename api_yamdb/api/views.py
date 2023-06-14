@@ -3,16 +3,28 @@ from django.core.mail import send_mail
 from django.core.management.utils import get_random_secret_key
 from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.tokens import AccessToken
 
 from users.models import User
-from .serializers import SignUpSerializer, TokenSerializer, CategorySerializer, GenreSerializer, TitlesGetSerializer, TitlesChangeSerializer
-from reviews.models import Category, Genre, Titles
-from api.permissions import IsAdminOrSuperUserOrReadOnly
+from reviews.models import Category, Genre, Titles, Reviews
+from api.serializers import (
+    SignUpSerializer,
+    TokenSerializer,
+    ReviewsSerializer,
+    CommentsSerializer,
+    CategorySerializer,
+    GenreSerializer,
+    TitlesGetSerializer,
+    TitlesChangeSerializer,
+    )
+from api.permissions import (
+    IsSuperUserIsAdminIsModerIsAuthor)
 
+from api.permissions import IsAdminOrSuperUserOrReadOnly
 
 
 class SignUpView(APIView):
@@ -64,13 +76,13 @@ class CategoryViewSet(viewsets.ModelViewSet):  # админ или только 
     serializer_class = CategorySerializer
 
 
-class GenreViewSet(viewsets.ModelViewSet): # админ или только читать
+class GenreViewSet(viewsets.ModelViewSet):  # админ или только читать
     permission_classes = (IsAdminOrSuperUserOrReadOnly,)
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
 
 
-class TitlesViewSet(viewsets.ModelViewSet): # админ или только читать
+class TitlesViewSet(viewsets.ModelViewSet):  # админ или только читать
     permission_classes = (IsAdminOrSuperUserOrReadOnly,)
     queryset = Titles.objects.all()
     # serializer_class = TitlesGetSerializer
@@ -80,3 +92,50 @@ class TitlesViewSet(viewsets.ModelViewSet): # админ или только ч�
             return TitlesGetSerializer
         return TitlesChangeSerializer
 
+
+class ReviewsViewSet(ModelViewSet):
+    serializer_class = ReviewsSerializer
+    permission_classes = (
+        IsAuthenticatedOrReadOnly,
+        IsSuperUserIsAdminIsModerIsAuthor,
+    )
+
+    def get_queryset(self):
+        """Возвращает queryset с отзывами выбранного произведения."""
+        reviewed_title = get_object_or_404(
+            Titles,
+            id=self.kwargs.get('title_id')
+        )
+        return reviewed_title.reviews.all()
+
+    def perform_create(self, serializer):
+        """Создание автором комментария к выбранному отзыву."""
+        reviewed_title = get_object_or_404(
+            Titles,
+            id=self.kwargs.get('title_id')
+        )
+        serializer.save(author=self.request.user, review=reviewed_title)
+
+
+class CommentsViewSet(ModelViewSet):
+    serializer_class = CommentsSerializer
+    permission_classes = (
+        IsAuthenticatedOrReadOnly,
+        IsSuperUserIsAdminIsModerIsAuthor,
+    )
+
+    def get_queryset(self):
+        """Возвращает queryset с комментариями выбранного отзыва."""
+        commented_review = get_object_or_404(
+            Reviews,
+            id=self.kwargs.get('review_id')
+        )
+        return commented_review.comments.all()
+
+    def perform_create(self, serializer):
+        """Создание автором комментария к выбранному отзыву."""
+        commented_review = get_object_or_404(
+            Reviews,
+            id=self.kwargs.get('review_id')
+        )
+        serializer.save(author=self.request.user, review=commented_review)
