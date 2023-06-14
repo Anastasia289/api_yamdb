@@ -9,8 +9,10 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import AccessToken
 
 from users.models import User
-from .serializers import SignUpSerializer, TokenSerializer, CategorySerializer, GenreSerializer, TitlesSerializer
+from .serializers import SignUpSerializer, TokenSerializer, CategorySerializer, GenreSerializer, TitlesGetSerializer, TitlesChangeSerializer
 from reviews.models import Category, Genre, Titles
+from api.permissions import IsAdminOrSuperUserOrReadOnly
+
 
 
 class SignUpView(APIView):
@@ -56,16 +58,25 @@ class TokenView(APIView):
         return Response({'token': str(token)}, status=status.HTTP_200_OK)
 
 
-class CategoryViewSet(viewsets.ModelViewSet):
+class CategoryViewSet(viewsets.ModelViewSet):  # админ или только читать
+    permission_classes = (IsAdminOrSuperUserOrReadOnly,)
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
 
-class GenreViewSet(viewsets.ModelViewSet):
+class GenreViewSet(viewsets.ModelViewSet): # админ или только читать
+    permission_classes = (IsAdminOrSuperUserOrReadOnly,)
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
 
 
-class TitlesViewSet(viewsets.ModelViewSet):
+class TitlesViewSet(viewsets.ModelViewSet): # админ или только читать
+    permission_classes = (IsAdminOrSuperUserOrReadOnly,)
     queryset = Titles.objects.all()
-    serializer_class = TitlesSerializer
+    # serializer_class = TitlesGetSerializer
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return TitlesGetSerializer
+        return TitlesChangeSerializer
+
