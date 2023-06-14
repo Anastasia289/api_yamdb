@@ -3,21 +3,23 @@ from django.core.mail import send_mail
 from django.core.management.utils import get_random_secret_key
 from django.shortcuts import get_object_or_404
 from rest_framework import status
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.tokens import AccessToken
 
 from users.models import User
-from reviews.models import Reviews
+from reviews.models import Reviews, Titles
 from api.serializers import (
     SignUpSerializer,
     TokenSerializer,
     ReviewsSerializer,
     CommentsSerializer,
 )
-from api.permissions import IsAuthorOrReadOnly
+from api.permissions import (
+    IsSuperUserIsAdminIsModerIsAuthor
+)
 
 
 class SignUpView(APIView):
@@ -64,12 +66,35 @@ class TokenView(APIView):
 
 
 class ReviewsViewSet(ModelViewSet):
-    ...
+    serializer_class = ReviewsSerializer
+    permission_classes = (
+        IsAuthenticatedOrReadOnly,
+        IsSuperUserIsAdminIsModerIsAuthor,
+    )
+
+    def get_queryset(self):
+        """Возвращает queryset с отзывами выбранного произведения."""
+        reviewed_title = get_object_or_404(
+            Titles,
+            id=self.kwargs.get('title_id')
+        )
+        return reviewed_title.reviews.all()
+
+    def perform_create(self, serializer):
+        """Создание автором комментария к выбранному отзыву."""
+        reviewed_title = get_object_or_404(
+            Titles,
+            id=self.kwargs.get('title_id')
+        )
+        serializer.save(author=self.request.user, review=reviewed_title)
 
 
 class CommentsViewSet(ModelViewSet):
     serializer_class = CommentsSerializer
-    permission_classes = (IsAuthorOrReadOnly, )
+    permission_classes = (
+        IsAuthenticatedOrReadOnly,
+        IsSuperUserIsAdminIsModerIsAuthor,
+    )
 
     def get_queryset(self):
         """Возвращает queryset с комментариями выбранного отзыва."""

@@ -96,12 +96,12 @@ class Comments(models.Model):
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='reviews'
+        related_name='comments'
     )
     review = models.ForeignKey(
         Reviews,
         on_delete=models.CASCADE,
-        related_name='reviews'
+        related_name='comments'
     )
     text = models.TextField()
     pub_date = models.DateTimeField(
