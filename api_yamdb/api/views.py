@@ -6,10 +6,18 @@ from rest_framework import status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.tokens import AccessToken
 
 from users.models import User
-from .serializers import SignUpSerializer, TokenSerializer
+from reviews.models import Reviews
+from api.serializers import (
+    SignUpSerializer,
+    TokenSerializer,
+    ReviewsSerializer,
+    CommentsSerializer,
+)
+from api.permissions import IsAuthorOrReadOnly
 
 
 class SignUpView(APIView):
@@ -53,3 +61,28 @@ class TokenView(APIView):
                 status=status.HTTP_400_BAD_REQUEST)
         token = AccessToken.for_user(user)
         return Response({'token': str(token)}, status=status.HTTP_200_OK)
+
+
+class ReviewsViewSet(ModelViewSet):
+    ...
+
+
+class CommentsViewSet(ModelViewSet):
+    serializer_class = CommentsSerializer
+    permission_classes = (IsAuthorOrReadOnly, )
+
+    def get_queryset(self):
+        """Возвращает queryset с комментариями выбранного отзыва."""
+        commented_review = get_object_or_404(
+            Reviews,
+            id=self.kwargs.get('review_id')
+        )
+        return commented_review.comments.all()
+
+    def perform_create(self, serializer):
+        """Создание автором комментария к выбранному отзыву."""
+        commented_review = get_object_or_404(
+            Reviews,
+            id=self.kwargs.get('review_id')
+        )
+        serializer.save(author=self.request.user, review=commented_review)
