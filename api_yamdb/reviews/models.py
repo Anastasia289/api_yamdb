@@ -56,20 +56,6 @@ class Titles(models.Model):
     def __str__(self):
         return self.name
 
-
-# class GenreTitle(models.Model):
-#     """Для загрузки csv."""
-#     title = models.ForeignKey(Titles, on_delete=models.CASCADE)
-#     genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
-
-#     class Meta:
-#         verbose_name = 'Соответствие жанра и произведения'
-#         verbose_name_plural = 'Таблица соответствия жанров и произведений'
-
-#     def __str__(self):
-#         return f'{self.title} принадлежит жанру/ам {self.genre}'
-
-
 class Reviews(models.Model):
     """Отзыв к произведению."""
 
@@ -133,3 +119,25 @@ class Comments(models.Model):
     def __str__(self):
         return self.text
 
+
+class GenreTitle(models.Model):
+    """Модель для загрузки данных. Сопоставляет жанры и произведения."""
+
+    genre = models.ForeignKey(
+        Genre,
+        on_delete=models.CASCADE,
+        verbose_name='Жанр'
+    )
+    title = models.ForeignKey(
+        Titles,
+        on_delete=models.CASCADE,
+        verbose_name='произведение'
+    )
+
+    class Meta:
+        verbose_name = 'Жанры-произведение'
+        verbose_name_plural = 'Жанры-произведения'
+        ordering = ('id',)
+
+    def __str__(self):
+        return f'{self.title} - {self.genre}'

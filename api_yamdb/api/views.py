@@ -86,7 +86,7 @@ class GenreViewSet(viewsets.ModelViewSet):  # админ или только ч�
 class TitlesViewSet(viewsets.ModelViewSet):  # админ или только читать
     permission_classes = (IsAdminOrSuperUserOrReadOnly,)
     queryset = Titles.objects.all()
-    serializer_class = TitlesSerializer
+    # serializer_class = TitlesSerializer
 
     # def get_serializer_class(self):
     #     if self.request.method == 'GET':
