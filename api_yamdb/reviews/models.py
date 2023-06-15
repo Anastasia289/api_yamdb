@@ -118,3 +118,26 @@ class Comments(models.Model):
 
     def __str__(self):
         return self.text
+
+
+class GenreTitle(models.Model):
+    """Модель для загрузки данных. Сопоставляет жанры и произведения."""
+
+    genre = models.ForeignKey(
+        Genre,
+        on_delete=models.CASCADE,
+        verbose_name='Жанр'
+    )
+    title = models.ForeignKey(
+        Titles,
+        on_delete=models.CASCADE,
+        verbose_name='произведение'
+    )
+
+    class Meta:
+        verbose_name = 'Жанры-произведение'
+        verbose_name_plural = 'Жанры-произведения'
+        ordering = ('id',)
+
+    def __str__(self):
+        return f'{self.title} - {self.genre}'
