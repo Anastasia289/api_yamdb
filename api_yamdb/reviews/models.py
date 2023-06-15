@@ -42,10 +42,11 @@ class Titles(models.Model):
         validators=[MaxValueValidator(
             int(datetime.now().year),
             message='Год не должен быть больше текущего')])
-    description = models.TextField('Описание')
+    
     category = models.ForeignKey(
         Category, on_delete=models.SET_NULL, related_name='titles', null=True,
         verbose_name='Категория')
+    description = models.TextField('Описание')
     genre = models.ManyToManyField(Genre, related_name='titles')
 
     class Meta:
@@ -54,6 +55,19 @@ class Titles(models.Model):
 
     def __str__(self):
         return self.name
+
+
+# class GenreTitle(models.Model):
+#     """Для загрузки csv."""
+#     title = models.ForeignKey(Titles, on_delete=models.CASCADE)
+#     genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
+
+#     class Meta:
+#         verbose_name = 'Соответствие жанра и произведения'
+#         verbose_name_plural = 'Таблица соответствия жанров и произведений'
+
+#     def __str__(self):
+#         return f'{self.title} принадлежит жанру/ам {self.genre}'
 
 
 class Reviews(models.Model):
@@ -118,3 +132,4 @@ class Comments(models.Model):
 
     def __str__(self):
         return self.text
+

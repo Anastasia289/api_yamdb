@@ -92,28 +92,33 @@ class GenreSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class TitlesGetSerializer(serializers.ModelSerializer):
-
-    genre = GenreSerializer(many=True, read_only=True)
-    category = CategorySerializer(read_only=True)
-
+class TitlesSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.Titles
+        model = models.Genre
         fields = '__all__'
 
+# class TitlesGetSerializer(serializers.ModelSerializer):
 
-class TitlesChangeSerializer(serializers.ModelSerializer):
+#     genre = GenreSerializer(many=True, read_only=True)
+#     category = CategorySerializer(read_only=True)
 
-    genre = serializers.SlugRelatedField(
-        slug_field='slug',
-        queryset=models.Genre.objects.all(),
-        many=True
-    )
-    category = serializers.SlugRelatedField(
-        slug_field='slug',
-        queryset=models.Category.objects.all()
-    )
+#     class Meta:
+#         model = models.Titles
+#         fields = '__all__'
 
-    class Meta:
-        model = models.Titles
-        fields = '__all__'
+
+# class TitlesChangeSerializer(serializers.ModelSerializer):
+
+#     genre = serializers.SlugRelatedField(
+#         slug_field='slug',
+#         queryset=models.Genre.objects.all(),
+#         many=True
+#     )
+#     category = serializers.SlugRelatedField(
+#         slug_field='slug',
+#         queryset=models.Category.objects.all()
+#     )
+
+#     class Meta:
+#         model = models.Titles
+#         fields = '__all__'
