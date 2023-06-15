@@ -12,3 +12,10 @@ class IsSuperUserIsAdminIsModerIsAuthor(permissions.BasePermission):
                      or request.user == obj.author
                      )
                 )
+
+
+class IsAdminOrSuperUserOrReadOnly(permissions.BasePermission):
+
+    def has_object_permission(self, request, view,):
+        return (request.method in permissions.SAFE_METHODS
+                or request.user.is_admin or request.user.is_superuser)

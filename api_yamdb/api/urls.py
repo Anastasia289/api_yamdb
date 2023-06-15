@@ -5,9 +5,8 @@ from .views import (
     SignUpView,
     TokenView,
     ReviewsViewSet,
-    CommentsViewSet,
+    CommentsViewSet, TitlesViewSet, GenreViewSet, CategoryViewSet
 )
-
 
 router_v1 = DefaultRouter()
 
@@ -22,6 +21,10 @@ router_v1.register(
     CommentsViewSet,
     basename='comments'
 )
+
+router_v1.register('titles', TitlesViewSet, basename='titles')
+router_v1.register('categories', CategoryViewSet, basename='categories')
+router_v1.register('genres', GenreViewSet, basename='genres')
 
 urlpatterns = [
     path('v1/', include(router_v1.urls)),

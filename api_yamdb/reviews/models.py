@@ -36,15 +36,18 @@ class Genre(models.Model):
 class Titles(models.Model):
     """Произведения."""
 
-    name = models.CharField(max_length=256)
+    name = models.CharField('Наименоввание', max_length=256)
     year = models.IntegerField(
-        validators=[
-            MaxValueValidator(int(datetime.now().year),
-                              message='Год не должен быть больше текущего')])
-    description = models.TextField()
+        'год создания',
+        validators=[MaxValueValidator(
+            int(datetime.now().year),
+            message='Год не должен быть больше текущего')])
     category = models.ForeignKey(
-        Category, on_delete=models.SET_NULL, related_name='titles', null=True)
-    genre = models.ManyToManyField(Genre, related_name='titles')
+        Category, on_delete=models.SET_NULL, related_name='titles', null=True,
+        verbose_name='Категория')
+    description = models.TextField('Описание')
+    genre = models.ManyToManyField(Genre,
+                                   through='GenreTitle', related_name='titles')
 
     class Meta:
         verbose_name = 'Произведение'
@@ -116,3 +119,26 @@ class Comments(models.Model):
 
     def __str__(self):
         return self.text
+
+
+class GenreTitle(models.Model):
+    """Модель для загрузки данных. Сопоставляет жанры и произведения."""
+
+    genre = models.ForeignKey(
+        Genre,
+        on_delete=models.CASCADE,
+        verbose_name='Жанр'
+    )
+    title = models.ForeignKey(
+        Titles,
+        on_delete=models.CASCADE,
+        verbose_name='произведение'
+    )
+
+    class Meta:
+        verbose_name = 'Жанры-произведение'
+        verbose_name_plural = 'Жанры-произведения'
+        ordering = ('id',)
+
+    def __str__(self):
+        return f'{self.title} - {self.genre}'
