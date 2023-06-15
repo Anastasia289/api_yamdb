@@ -1,8 +1,11 @@
 from rest_framework import serializers
 from django.shortcuts import get_object_or_404
 from users.models import User
-from reviews.models import Reviews, Comments, Titles  # нужно кому-то переписать, чтобы было красиво
-from reviews import models
+from reviews.models import (Category,
+                            Comments,
+                            Genre,
+                            Reviews,
+                            Titles)
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -82,43 +85,38 @@ class CommentsSerializer(serializers.ModelSerializer):
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.Category
+        model = Category
         fields = '__all__'
 
 
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.Genre
+        model = Genre
         fields = '__all__'
 
 
-class TitlesSerializer(serializers.ModelSerializer):
+class TitlesGetSerializer(serializers.ModelSerializer):
+
+    genre = GenreSerializer(many=True, read_only=True)
+    category = CategorySerializer(read_only=True)
+
     class Meta:
-        model = models.Genre
+        model = Titles
         fields = '__all__'
 
-# class TitlesGetSerializer(serializers.ModelSerializer):
 
-#     genre = GenreSerializer(many=True, read_only=True)
-#     category = CategorySerializer(read_only=True)
+class TitlesChangeSerializer(serializers.ModelSerializer):
 
-#     class Meta:
-#         model = models.Titles
-#         fields = '__all__'
+    genre = serializers.SlugRelatedField(
+        slug_field='slug',
+        queryset=Genre.objects.all(),
+        many=True
+    )
+    category = serializers.SlugRelatedField(
+        slug_field='slug',
+        queryset=Category.objects.all()
+    )
 
-
-# class TitlesChangeSerializer(serializers.ModelSerializer):
-
-#     genre = serializers.SlugRelatedField(
-#         slug_field='slug',
-#         queryset=models.Genre.objects.all(),
-#         many=True
-#     )
-#     category = serializers.SlugRelatedField(
-#         slug_field='slug',
-#         queryset=models.Category.objects.all()
-#     )
-
-#     class Meta:
-#         model = models.Titles
-#         fields = '__all__'
+    class Meta:
+        model = Titles
+        fields = '__all__'

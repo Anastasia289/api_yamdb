@@ -42,12 +42,12 @@ class Titles(models.Model):
         validators=[MaxValueValidator(
             int(datetime.now().year),
             message='Год не должен быть больше текущего')])
-    
     category = models.ForeignKey(
         Category, on_delete=models.SET_NULL, related_name='titles', null=True,
         verbose_name='Категория')
     description = models.TextField('Описание')
-    genre = models.ManyToManyField(Genre, related_name='titles')
+    genre = models.ManyToManyField(Genre,
+                                   through='GenreTitle', related_name='titles')
 
     class Meta:
         verbose_name = 'Произведение'
@@ -55,6 +55,7 @@ class Titles(models.Model):
 
     def __str__(self):
         return self.name
+
 
 class Reviews(models.Model):
     """Отзыв к произведению."""

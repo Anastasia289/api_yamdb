@@ -18,9 +18,8 @@ from api.serializers import (
     CommentsSerializer,
     CategorySerializer,
     GenreSerializer,
-    # TitlesGetSerializer,
-    # TitlesChangeSerializer,
-    TitlesSerializer
+    TitlesGetSerializer,
+    TitlesChangeSerializer,
     )
 from api.permissions import (
     IsSuperUserIsAdminIsModerIsAuthor)
@@ -71,27 +70,26 @@ class TokenView(APIView):
         return Response({'token': str(token)}, status=status.HTTP_200_OK)
 
 
-class CategoryViewSet(viewsets.ModelViewSet):  # админ или только читать
+class CategoryViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminOrSuperUserOrReadOnly,)
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
 
-class GenreViewSet(viewsets.ModelViewSet):  # админ или только читать
+class GenreViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminOrSuperUserOrReadOnly,)
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
 
 
-class TitlesViewSet(viewsets.ModelViewSet):  # админ или только читать
+class TitlesViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminOrSuperUserOrReadOnly,)
     queryset = Titles.objects.all()
-    # serializer_class = TitlesSerializer
 
-    # def get_serializer_class(self):
-    #     if self.request.method == 'GET':
-    #         return TitlesGetSerializer
-    #     return TitlesChangeSerializer
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return TitlesGetSerializer
+        return TitlesChangeSerializer
 
 
 class ReviewsViewSet(ModelViewSet):
