@@ -1,11 +1,7 @@
-from rest_framework import serializers
 from django.shortcuts import get_object_or_404
+from rest_framework import serializers
+from reviews.models import Category, Comments, Genre, Reviews, Titles
 from users.models import User
-from reviews.models import (Category,
-                            Comments,
-                            Genre,
-                            Reviews,
-                            Titles)
 
 
 class UserSerializer(serializers.ModelSerializer):

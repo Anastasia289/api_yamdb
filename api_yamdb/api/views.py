@@ -1,3 +1,9 @@
+from api.permissions import (IsAdminOrSuperUserOrReadOnly,
+                             IsSuperUserIsAdminIsModerIsAuthor)
+from api.serializers import (CategorySerializer, CommentsSerializer,
+                             GenreSerializer, ReviewsSerializer,
+                             SignUpSerializer, TitlesChangeSerializer,
+                             TitlesGetSerializer, TokenSerializer)
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.core.management.utils import get_random_secret_key
@@ -8,23 +14,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.tokens import AccessToken
-
+from reviews.models import Category, Genre, Reviews, Titles
 from users.models import User
-from reviews.models import Category, Genre, Titles, Reviews
-from api.serializers import (
-    SignUpSerializer,
-    TokenSerializer,
-    ReviewsSerializer,
-    CommentsSerializer,
-    CategorySerializer,
-    GenreSerializer,
-    TitlesGetSerializer,
-    TitlesChangeSerializer,
-    )
-from api.permissions import (
-    IsSuperUserIsAdminIsModerIsAuthor)
-
-from api.permissions import IsAdminOrSuperUserOrReadOnly
 
 
 class SignUpView(APIView):
