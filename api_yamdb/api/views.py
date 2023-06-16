@@ -4,9 +4,10 @@ from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.core.management.utils import get_random_secret_key
 from django.shortcuts import get_object_or_404
-from rest_framework import status, viewsets
+from rest_framework import status, viewsets, filters
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
+# from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import (AllowAny, IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
@@ -99,17 +100,33 @@ class CategoryViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminOrSuperUserOrReadOnly,)
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+    filter_backends = (filters.SearchFilter, )
+    search_fields = (
+        'name',)
 
 
 class GenreViewSet(viewsets.ModelViewSet):
-    permission_classes = (IsAdminOrSuperUserOrReadOnly,)
+    permission_classes = (IsAdminOrSuperUserOrReadOnly, )
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
+    filter_backends = (filters.SearchFilter, )
+    search_fields = (
+        'name',)
 
 
 class TitlesViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminOrSuperUserOrReadOnly,)
     queryset = Titles.objects.all()
+    # filter_backends = (DjangoFilterBackend, filters.SearchFilter,)
+                    #    filters.OrderingFilter)
+    # filter_backends = (filters.SearchFilter,)
+    # filter_backends = [filters.SearchFilter]
+    # search_fields = ['=genre']
+    
+    # filterset_fields = ('genre_ _slug')
+    # search_fields = ('$text',)
+    # ordering_fields = ('slug', ) 
+
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
