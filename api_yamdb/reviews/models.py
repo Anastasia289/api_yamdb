@@ -36,7 +36,7 @@ class Genre(models.Model):
 class Titles(models.Model):
     """Произведения."""
 
-    name = models.CharField('Наименоввание', max_length=256)
+    name = models.CharField('Наименование', max_length=256)
     year = models.IntegerField(
         'год создания',
         validators=[MaxValueValidator(
