@@ -82,6 +82,8 @@ class UserViewSet(viewsets.ModelViewSet):
     @action(
         detail=False,
         methods=['GET', 'PATCH'],
+        url_path='me',
+        url_name='me',
         permission_classes=(IsAuthenticated,)
     )
     def profile(self, request):
