@@ -1,19 +1,27 @@
-from api.permissions import (IsAdminOrSuperUserOrReadOnly,
-                             IsSuperUserIsAdminIsModerIsAuthor)
-from api.serializers import (CategorySerializer, CommentsSerializer,
-                             GenreSerializer, ReviewsSerializer,
-                             SignUpSerializer, TitlesChangeSerializer,
-                             TitlesGetSerializer, TokenSerializer)
+from http import HTTPStatus
+
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.core.management.utils import get_random_secret_key
 from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets
-from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
+from rest_framework.decorators import action
+from rest_framework.filters import SearchFilter
+from rest_framework.permissions import (AllowAny, IsAuthenticated,
+                                        IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.tokens import AccessToken
+
+from api.permissions import (IsAdminOrSuperUserOrReadOnly,
+                             IsSuperUserIsAdminIsModerIsAuthor)
+from api.serializers import (CategorySerializer, CommentsSerializer,
+                             GenreSerializer, ReviewsSerializer,
+                             SignUpSerializer, TitlesChangeSerializer,
+                             TitlesGetSerializer, TokenSerializer,
+                             UserSerializer)
+
 from reviews.models import Category, Genre, Reviews, Titles
 from users.models import User
 
@@ -59,6 +67,32 @@ class TokenView(APIView):
                 status=status.HTTP_400_BAD_REQUEST)
         token = AccessToken.for_user(user)
         return Response({'token': str(token)}, status=status.HTTP_200_OK)
+
+
+class UserViewSet(viewsets.ModelViewSet):
+    """Управление пользователями."""
+    queryset = User.objects.all()
+    permission_classes = (IsAdminOrSuperUserOrReadOnly,)
+    serializer_class = UserSerializer
+    filter_backends = (SearchFilter,)
+    search_fields = ('username',)
+    lookup_field = 'username'
+
+    @action(
+        detail=False,
+        methods=['GET', 'PATCH'],
+        permission_classes=(IsAuthenticated,)
+    )
+    def profile(self, request):
+        if request.method == 'GET':
+            serializer = UserSerializer(request.user)
+            return Response(serializer.data)
+        serializer = UserSerializer(request.user,
+                                    data=request.data,
+                                    partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(role=request.user.role)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
