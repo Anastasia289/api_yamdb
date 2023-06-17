@@ -99,7 +99,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
-    permission_classes = (IsAdminOrSuperUserOrReadOnly,)
+    permission_classes = (IsAdminOrSuperUserOrReadOnly, IsAuthenticatedOrReadOnly,)
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     filter_backends = (filters.SearchFilter, )
