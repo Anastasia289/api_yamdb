@@ -10,9 +10,9 @@ class TitlesAdmin(admin.ModelAdmin):
     empty_value_display = '-пусто-'
 
 
-admin.site.register(models.Titles, TitlesAdmin)
+admin.site.register(models.Title, TitlesAdmin)
 admin.site.register(models.Genre)
 admin.site.register(models.Category)
-admin.site.register(models.Reviews)
+admin.site.register(models.Review)
 admin.site.register(models.Comments)
 admin.site.register(models.GenreTitle)

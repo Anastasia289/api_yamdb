@@ -33,7 +33,7 @@ class Genre(models.Model):
         return self.name
 
 
-class Titles(models.Model):
+class Title(models.Model):
     """Произведения."""
 
     name = models.CharField('Наименование', max_length=256)
@@ -57,7 +57,7 @@ class Titles(models.Model):
         return self.name
 
 
-class Reviews(models.Model):
+class Review(models.Model):
     """Отзыв к произведению."""
 
     author = models.ForeignKey(
@@ -66,7 +66,7 @@ class Reviews(models.Model):
         related_name='reviews'
     )
     title = models.ForeignKey(
-        Titles,
+        Title,
         on_delete=models.CASCADE,
         related_name='reviews'
     )
@@ -88,6 +88,12 @@ class Reviews(models.Model):
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
         ordering = ('pub_date', )
+        constraints = (
+            models.UniqueConstraint(
+                fields=['author', 'title'],
+                name='unique_review_for_title'
+            ),
+        )
 
     def __str__(self):
         return self.text
@@ -102,7 +108,7 @@ class Comments(models.Model):
         related_name='comments'
     )
     review = models.ForeignKey(
-        Reviews,
+        Review,
         on_delete=models.CASCADE,
         related_name='comments'
     )
@@ -130,7 +136,7 @@ class GenreTitle(models.Model):
         verbose_name='Жанр'
     )
     title = models.ForeignKey(
-        Titles,
+        Title,
         on_delete=models.CASCADE,
         verbose_name='произведение'
     )
