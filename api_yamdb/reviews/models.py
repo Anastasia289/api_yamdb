@@ -44,7 +44,7 @@ class Title(models.Model):
             message='Год не должен быть больше текущего')])
     category = models.ForeignKey(
         Category, on_delete=models.SET_NULL, related_name='titles', null=True,
-        verbose_name='Категория')
+        verbose_name='Категория',)
     description = models.TextField('Описание')
     genre = models.ManyToManyField(Genre,
                                    through='GenreTitle', related_name='titles')

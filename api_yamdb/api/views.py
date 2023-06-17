@@ -2,7 +2,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.core.management.utils import get_random_secret_key
 from django.shortcuts import get_object_or_404
-from rest_framework import status, viewsets
+from rest_framework import status, viewsets, filters
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import (AllowAny, IsAuthenticated,
@@ -98,12 +98,18 @@ class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     permission_classes = (IsAdminOrReadOnly,)
     serializer_class = CategorySerializer
+    filter_backends = (filters.SearchFilter, )
+    search_fields = (
+        'name',)
 
 
 class GenreViewSet(viewsets.ModelViewSet):
     queryset = Genre.objects.all()
     permission_classes = (IsAdminOrReadOnly,)
     serializer_class = GenreSerializer
+    filter_backends = (filters.SearchFilter, )
+    search_fields = (
+        'name',)
 
 
 class TitlesViewSet(viewsets.ModelViewSet):
