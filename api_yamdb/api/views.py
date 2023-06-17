@@ -11,6 +11,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.tokens import AccessToken
+from django.db.models import Value
 
 from api.permissions import (IsAdminOrReadOnly,
                              IsSuperUserIsAdminIsModerIsAuthor,)
@@ -19,11 +20,11 @@ from api.serializers import (CategorySerializer, CommentsSerializer,
                              ReviewsSerializer, SignUpSerializer,
                              TitlesChangeSerializer, TitlesGetSerializer,
                              TokenSerializer, UserSerializer)
-from reviews.models import Category, Genre, Review, Title
+from reviews.models import Category, Genre, Review, Title, Comments
 from users.models import User
 from .filters import TitleFilter
 from django_filters.rest_framework import DjangoFilterBackend
-
+from django.db.models import Count, Avg
 
 class SignUpView(APIView):
     """
@@ -116,7 +117,7 @@ class GenreViewSet(viewsets.ModelViewSet):
 
 class TitlesViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminOrReadOnly,)
-    queryset = Title.objects.all()
+    queryset = Title.objects.annotate(rating=Avg('reviews__score')).all()
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilter
 
