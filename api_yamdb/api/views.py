@@ -5,7 +5,6 @@ from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets, filters
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
-# from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import (AllowAny, IsAuthenticated,
                                         IsAuthenticatedOrReadOnly,)
 from rest_framework.response import Response
@@ -23,8 +22,6 @@ from api.serializers import (CategorySerializer, CommentsSerializer,
 from reviews.models import Category, Genre, Review, Title
 from users.models import User
 
-# from filters import TitleFilter
-# from django_filters.rest_framework import DjangoFilterBackend
 
 class SignUpView(APIView):
     """
@@ -98,7 +95,6 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
-    # permission_classes = (IsAdminOrSuperUserOrReadOnly, IsAuthenticatedOrReadOnly,)
     queryset = Category.objects.all()
     permission_classes = (IsAdminOrReadOnly,)
     serializer_class = CategorySerializer
@@ -119,8 +115,6 @@ class GenreViewSet(viewsets.ModelViewSet):
 class TitlesViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminOrReadOnly,)
     queryset = Title.objects.all()
-    # filter_backends = (DjangoFilterBackend,)
-    # filterset_class = TitleFilter
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
