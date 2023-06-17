@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
-from reviews.models import Category, Comments, Genre, Reviews, Titles
+from reviews.models import Category, Comments, Genre, Review, Title
 from users.models import User
 
 
@@ -35,10 +35,6 @@ class TokenSerializer(serializers.ModelSerializer):
 
 class ReviewsSerializer(serializers.ModelSerializer):
     """Сериализатор модели Review."""
-    title = serializers.SlugRelatedField(
-        read_only=True,
-        slug_field='title'
-    )
     author = serializers.SlugRelatedField(
         read_only=True,
         slug_field='username'
@@ -49,9 +45,9 @@ class ReviewsSerializer(serializers.ModelSerializer):
         request = self.context['request']
         if request.method == "POST":
             title_id = self.context['view'].kwargs['title_id']
-            title = get_object_or_404(Titles, pk=title_id)
+            title = get_object_or_404(Title, pk=title_id)
             author = request.user
-            if Reviews.objects.filter(title=title, author=author).exists():
+            if Review.objects.filter(title=title, author=author).exists():
                 raise serializers.ValidationError(
                     'Одно произведение - один отзыв от одного автора!!!'
                 )
@@ -59,8 +55,8 @@ class ReviewsSerializer(serializers.ModelSerializer):
         return data
 
     class Meta:
-        fields = '__all__'
-        model = Reviews
+        fields = ('id', 'text', 'author', 'score', 'pub_date')
+        model = Review
 
 
 class CommentsSerializer(serializers.ModelSerializer):
@@ -69,13 +65,9 @@ class CommentsSerializer(serializers.ModelSerializer):
         read_only=True,
         slug_field='username'
     )
-    review = serializers.SlugRelatedField(
-        read_only=True,
-        slug_field='review'
-    )
 
     class Meta:
-        fields = '__all__'
+        fields = ('id', 'text', 'author', 'pub_date')
         model = Comments
 
 
@@ -99,7 +91,7 @@ class TitlesGetSerializer(serializers.ModelSerializer):
     category = CategorySerializer(read_only=True)
 
     class Meta:
-        model = Titles
+        model = Title
         fields = '__all__'
 
 
@@ -116,5 +108,5 @@ class TitlesChangeSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        model = Titles
+        model = Title
         fields = '__all__'

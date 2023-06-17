@@ -23,7 +23,7 @@ from api.serializers import (CategorySerializer, CommentsSerializer,
                              TitlesGetSerializer, TokenSerializer,
                              UserSerializer)
 
-from reviews.models import Category, Genre, Reviews, Titles
+from reviews.models import Category, Genre, Review, Title
 from users.models import User
 
 
@@ -118,17 +118,7 @@ class GenreViewSet(viewsets.ModelViewSet):
 
 class TitlesViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminOrSuperUserOrReadOnly,)
-    queryset = Titles.objects.all()
-    # filter_backends = (DjangoFilterBackend, filters.SearchFilter,)
-                    #    filters.OrderingFilter)
-    # filter_backends = (filters.SearchFilter,)
-    # filter_backends = [filters.SearchFilter]
-    # search_fields = ['=genre']
-    
-    # filterset_fields = ('genre_ _slug')
-    # search_fields = ('$text',)
-    # ordering_fields = ('slug', ) 
-
+    queryset = Title.objects.all()
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -146,7 +136,7 @@ class ReviewsViewSet(ModelViewSet):
     def get_queryset(self):
         """Возвращает queryset с отзывами выбранного произведения."""
         reviewed_title = get_object_or_404(
-            Titles,
+            Title,
             id=self.kwargs.get('title_id')
         )
         return reviewed_title.reviews.all()
@@ -154,10 +144,10 @@ class ReviewsViewSet(ModelViewSet):
     def perform_create(self, serializer):
         """Создание автором комментария к выбранному отзыву."""
         reviewed_title = get_object_or_404(
-            Titles,
+            Title,
             id=self.kwargs.get('title_id')
         )
-        serializer.save(author=self.request.user, review=reviewed_title)
+        serializer.save(author=self.request.user, title=reviewed_title)
 
 
 class CommentsViewSet(ModelViewSet):
@@ -170,7 +160,7 @@ class CommentsViewSet(ModelViewSet):
     def get_queryset(self):
         """Возвращает queryset с комментариями выбранного отзыва."""
         commented_review = get_object_or_404(
-            Reviews,
+            Review,
             id=self.kwargs.get('review_id')
         )
         return commented_review.comments.all()
@@ -178,7 +168,7 @@ class CommentsViewSet(ModelViewSet):
     def perform_create(self, serializer):
         """Создание автором комментария к выбранному отзыву."""
         commented_review = get_object_or_404(
-            Reviews,
+            Review,
             id=self.kwargs.get('review_id')
         )
         serializer.save(author=self.request.user, review=commented_review)
