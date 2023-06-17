@@ -1,5 +1,3 @@
-from http import HTTPStatus
-
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.core.management.utils import get_random_secret_key
@@ -9,20 +7,19 @@ from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
 # from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import (AllowAny, IsAuthenticated,
-                                        IsAuthenticatedOrReadOnly)
+                                        IsAuthenticatedOrReadOnly,)
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.tokens import AccessToken
 
-from api.permissions import (IsAdminOrSuperUserOrReadOnly,
-                             IsSuperUserIsAdminIsModerIsAuthor)
+from api.permissions import (IsAdminOrReadOnly,
+                             IsSuperUserIsAdminIsModerIsAuthor,)
 from api.serializers import (CategorySerializer, CommentsSerializer,
-                             GenreSerializer, ReviewsSerializer,
-                             SignUpSerializer, TitlesChangeSerializer,
-                             TitlesGetSerializer, TokenSerializer,
-                             UserSerializer)
-
+                             GenreSerializer,
+                             ReviewsSerializer, SignUpSerializer,
+                             TitlesChangeSerializer, TitlesGetSerializer,
+                             TokenSerializer, UserSerializer)
 from reviews.models import Category, Genre, Review, Title
 from users.models import User
 
@@ -73,19 +70,19 @@ class TokenView(APIView):
 class UserViewSet(viewsets.ModelViewSet):
     """Управление пользователями."""
     queryset = User.objects.all()
-    permission_classes = (IsAdminOrSuperUserOrReadOnly,)
+    permission_classes = (IsAdminOrReadOnly,)
     serializer_class = UserSerializer
     filter_backends = (SearchFilter,)
     search_fields = ('username',)
     lookup_field = 'username'
+    http_method_names = ['get', 'post', 'patch', 'delete']
 
     @action(
         detail=False,
         methods=['GET', 'PATCH'],
         url_path='me',
         url_name='me',
-        permission_classes=(IsAuthenticated,)
-    )
+        permission_classes=(IsAuthenticated,))
     def profile(self, request):
         if request.method == 'GET':
             serializer = UserSerializer(request.user)
@@ -99,17 +96,18 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
-    permission_classes = (IsAdminOrSuperUserOrReadOnly, IsAuthenticatedOrReadOnly,)
+    # permission_classes = (IsAdminOrSuperUserOrReadOnly, IsAuthenticatedOrReadOnly,)
     queryset = Category.objects.all()
+    permission_classes = (IsAdminOrReadOnly,)
     serializer_class = CategorySerializer
-    filter_backends = (filters.SearchFilter, )
-    search_fields = (
-        'name',)
+    # filter_backends = (filters.SearchFilter, )
+    # search_fields = (
+    #     'name',)
 
 
 class GenreViewSet(viewsets.ModelViewSet):
-    permission_classes = (IsAdminOrSuperUserOrReadOnly, )
     queryset = Genre.objects.all()
+    permission_classes = (IsAdminOrReadOnly,)
     serializer_class = GenreSerializer
     filter_backends = (filters.SearchFilter, )
     search_fields = (
@@ -117,7 +115,7 @@ class GenreViewSet(viewsets.ModelViewSet):
 
 
 class TitlesViewSet(viewsets.ModelViewSet):
-    permission_classes = (IsAdminOrSuperUserOrReadOnly,)
+    permission_classes = (IsAdminOrReadOnly,)
     queryset = Title.objects.all()
 
     def get_serializer_class(self):

@@ -1,10 +1,31 @@
+from django.contrib.auth.validators import UnicodeUsernameValidator
+from django.core.validators import RegexValidator
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
+from rest_framework.validators import UniqueValidator
+
 from reviews.models import Category, Comments, Genre, Review, Title
 from users.models import User
 
 
 class UserSerializer(serializers.ModelSerializer):
+    username = serializers.RegexField(
+        regex="^[\\w.@+-]+",
+        max_length=150,
+        required=True,
+        validators=[UniqueValidator(queryset=User.objects.all())],)
+
+    def validate_username(self, value):
+        if value == "me":
+            raise serializers.ValidationError("Нельзя использовать 'me'.")
+        return value
+
+    def create(self, validated_data):
+        if self.is_valid():
+            user, created = User.objects.get_or_create(**validated_data)
+            user.save()
+        return user
+
     class Meta:
         model = User
         fields = ('username', 'email', 'first_name',
@@ -12,12 +33,33 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class SignUpSerializer(serializers.ModelSerializer):
-    def validate_username(self, value):
-        if value == 'me':
+
+    username = serializers.CharField(
+        max_length=150,
+        validators=[
+            UnicodeUsernameValidator(),
+            RegexValidator(
+                regex=r'^(?!me$).*$',
+                message='Неподходящий логин. "me" использовать запрещено.',
+            ),
+        ],
+    )
+    email = serializers.EmailField(max_length=254)
+
+    def create(self, validated_data):
+        existing_username = User.objects.filter(
+            username=validated_data.get('username')
+        ).first()
+        existing_email = User.objects.filter(
+            email=validated_data.get('email')
+        ).first()
+        if any([existing_username, existing_email]):
+            if existing_username == existing_email:
+                return existing_username
             raise serializers.ValidationError(
-                'Неподходящий логин. "me" использовать запрещено.'
+                'Данный Email уже существует. Выберите другой.'
             )
-        return value
+        return User.objects.create(**validated_data)
 
     class Meta:
         model = User
