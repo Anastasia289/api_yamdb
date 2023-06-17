@@ -23,6 +23,8 @@ from api.serializers import (CategorySerializer, CommentsSerializer,
 from reviews.models import Category, Genre, Review, Title
 from users.models import User
 
+# from filters import TitleFilter
+# from django_filters.rest_framework import DjangoFilterBackend
 
 class SignUpView(APIView):
     """
@@ -100,9 +102,9 @@ class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     permission_classes = (IsAdminOrReadOnly,)
     serializer_class = CategorySerializer
-    # filter_backends = (filters.SearchFilter, )
-    # search_fields = (
-    #     'name',)
+    filter_backends = (filters.SearchFilter, )
+    search_fields = (
+        'name',)
 
 
 class GenreViewSet(viewsets.ModelViewSet):
@@ -117,6 +119,8 @@ class GenreViewSet(viewsets.ModelViewSet):
 class TitlesViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminOrReadOnly,)
     queryset = Title.objects.all()
+    # filter_backends = (DjangoFilterBackend,)
+    # filterset_class = TitleFilter
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
