@@ -21,6 +21,8 @@ from api.serializers import (CategorySerializer, CommentsSerializer,
                              TokenSerializer, UserSerializer)
 from reviews.models import Category, Genre, Review, Title
 from users.models import User
+from .filters import TitleFilter
+from django_filters.rest_framework import DjangoFilterBackend
 
 
 class SignUpView(APIView):
@@ -115,6 +117,8 @@ class GenreViewSet(viewsets.ModelViewSet):
 class TitlesViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminOrReadOnly,)
     queryset = Title.objects.all()
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = TitleFilter
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
