@@ -2,8 +2,8 @@ import csv
 
 from django.conf import settings
 from django.core.management import BaseCommand
-from reviews.models import (Category, Comments, Genre, GenreTitle, Review,
-                            Title)
+
+from reviews.models import Category, Comments, Genre, GenreTitle, Review, Title
 from users.models import User
 
 MODELS_AND_FILES = {
@@ -17,7 +17,7 @@ MODELS_AND_FILES = {
 }
 
 
-FOREIGN_KEY_FIELDS = ('category', 'author')
+FOREIGN_KEYS = ('category', 'author')
 
 
 class Command(BaseCommand):
@@ -31,15 +31,15 @@ class Command(BaseCommand):
                       'r',
                       encoding='utf-8',) as csv_file:
                 csv_data = csv.DictReader(csv_file)
-                objects = []
+                prepared_for_creating_objects = []
                 for row in csv_data:
-                    for field in FOREIGN_KEY_FIELDS:
+                    for field in FOREIGN_KEYS:
                         if field in row:
                             row[f'{field}_id'] = row[field]
                             del row[field]
-                    objects.append(model(**row))
+                    prepared_for_creating_objects.append(model(**row))
                 try:
-                    model.objects.bulk_create(objects)
+                    model.objects.bulk_create(prepared_for_creating_objects)
                     self.stdout.write(
                         self.style.SUCCESS(
                             f'Загрузка {datafile_csv}  завершена'))

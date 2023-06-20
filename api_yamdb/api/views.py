@@ -2,23 +2,22 @@ from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.core.management.utils import get_random_secret_key
 from django.db.models import Avg
-from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
-from rest_framework import status, viewsets, filters
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import (AllowAny, IsAuthenticated,
-                                        IsAuthenticatedOrReadOnly,)
+                                        IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.tokens import AccessToken
 
-from .filters import TitleFilter
-from api.permissions import (IsAdminOrReadOnly, IsAdminOrStuffPermission,
-                             IsSuperUserIsAdminIsModerIsAuthor,)
 from api.mixins import CreateListDestroyViewSet
+from api.permissions import (IsAdminOrReadOnly, IsAdminOrStuffPermission,
+                             IsSuperUserIsAdminIsModerIsAuthor)
 from api.serializers import (CategorySerializer, CommentsSerializer,
                              GenreSerializer, ReviewsSerializer,
                              SignUpSerializer, TitlesChangeSerializer,
@@ -26,6 +25,8 @@ from api.serializers import (CategorySerializer, CommentsSerializer,
                              UserSerializer, UserWithoutRoleSerializer)
 from reviews.models import Category, Genre, Review, Title
 from users.models import User
+
+from .filters import TitleFilter
 
 
 class SignUpView(APIView):

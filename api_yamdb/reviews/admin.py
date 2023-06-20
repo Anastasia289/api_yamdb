@@ -1,10 +1,11 @@
 from django.contrib import admin
+
 from reviews import models
 
 
 class TitlesAdmin(admin.ModelAdmin):
     list_display = ('pk', 'name', 'year',
-                    'description', 'category')  # здесь пока нет жанров.
+                    'description', 'category')
     search_fields = ('name',)
 
     empty_value_display = '-пусто-'
