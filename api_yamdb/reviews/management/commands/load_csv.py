@@ -7,7 +7,6 @@ from reviews.models import (Category, Comments, Genre, GenreTitle, Review,
 from users.models import User
 
 MODELS_AND_FILES = {
-
     Category: 'category.csv',
     User: 'users.csv',
     Genre: 'genre.csv',
@@ -15,7 +14,7 @@ MODELS_AND_FILES = {
     GenreTitle: 'genre_title.csv',
     Review: 'review.csv',
     Comments: 'comments.csv',
-    }
+}
 
 
 FOREIGN_KEY_FIELDS = ('category', 'author')

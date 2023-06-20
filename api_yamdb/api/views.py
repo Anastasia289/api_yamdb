@@ -1,30 +1,32 @@
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.core.management.utils import get_random_secret_key
+from django.db.models import Avg
+from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets, filters
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
+from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import (AllowAny, IsAuthenticated,
                                         IsAuthenticatedOrReadOnly,)
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.tokens import AccessToken
-from django.db.models import Value
 
-from api.permissions import (IsAdminOrReadOnly,
-                             IsSuperUserIsAdminIsModerIsAuthor,)
-from api.serializers import (CategorySerializer, CommentsSerializer,
-                             GenreSerializer,
-                             ReviewsSerializer, SignUpSerializer,
-                             TitlesChangeSerializer, TitlesGetSerializer,
-                             TokenSerializer, UserSerializer)
-from reviews.models import Category, Genre, Review, Title, Comments
-from users.models import User
 from .filters import TitleFilter
-from django_filters.rest_framework import DjangoFilterBackend
-from django.db.models import Count, Avg
+from api.permissions import (IsAdminOrReadOnly, IsAdminOrStuffPermission,
+                             IsSuperUserIsAdminIsModerIsAuthor,)
+from api.mixins import CreateListDestroyViewSet
+from api.serializers import (CategorySerializer, CommentsSerializer,
+                             GenreSerializer, ReviewsSerializer,
+                             SignUpSerializer, TitlesChangeSerializer,
+                             TitlesGetSerializer, TokenSerializer,
+                             UserSerializer, UserWithoutRoleSerializer)
+from reviews.models import Category, Genre, Review, Title
+from users.models import User
+
 
 class SignUpView(APIView):
     """
@@ -60,19 +62,19 @@ class TokenView(APIView):
         serializer.is_valid(raise_exception=True)
         username = serializer.data['username']
         user = get_object_or_404(User, username=username)
-        confirmation_code = default_token_generator.make_token(user)
-        if not default_token_generator.check_token(user, confirmation_code):
-            return Response(
-                {'confirmation_code': 'Неверный код подтверждения'},
-                status=status.HTTP_400_BAD_REQUEST)
-        token = AccessToken.for_user(user)
-        return Response({'token': str(token)}, status=status.HTTP_200_OK)
+        if default_token_generator.check_token(
+                user, serializer.validated_data['confirmation_code']
+        ):
+            token = AccessToken.for_user(user)
+            return Response({'token': str(token)}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserViewSet(viewsets.ModelViewSet):
     """Управление пользователями."""
     queryset = User.objects.all()
-    permission_classes = (IsAdminOrReadOnly,)
+    pagination_class = LimitOffsetPagination
+    permission_classes = (IsAdminOrStuffPermission,)
     serializer_class = UserSerializer
     filter_backends = (SearchFilter,)
     search_fields = ('username',)
@@ -83,39 +85,40 @@ class UserViewSet(viewsets.ModelViewSet):
         detail=False,
         methods=['GET', 'PATCH'],
         url_path='me',
-        url_name='me',
         permission_classes=(IsAuthenticated,))
     def profile(self, request):
-        if request.method == 'GET':
-            serializer = UserSerializer(request.user)
-            return Response(serializer.data)
-        serializer = UserSerializer(request.user,
-                                    data=request.data,
-                                    partial=True)
-        serializer.is_valid(raise_exception=True)
-        serializer.save(role=request.user.role)
+        if request.method == 'PATCH':
+            serializer = UserWithoutRoleSerializer(
+                request.user, data=request.data, partial=True
+            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        serializer = UserSerializer(request.user)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class CategoryViewSet(viewsets.ModelViewSet):
-    queryset = Category.objects.all()
+class CategoryViewSet(CreateListDestroyViewSet):
+    queryset = Category.objects.all().order_by('name')
     permission_classes = (IsAdminOrReadOnly,)
     serializer_class = CategorySerializer
     filter_backends = (filters.SearchFilter, )
-    search_fields = (
-        'name',)
+    search_fields = ('name',)
+    lookup_field = 'slug'
 
 
-class GenreViewSet(viewsets.ModelViewSet):
-    queryset = Genre.objects.all()
-    permission_classes = (IsAdminOrReadOnly,)
+class GenreViewSet(CreateListDestroyViewSet):
+
+    queryset = Genre.objects.all().order_by('name')
     serializer_class = GenreSerializer
-    filter_backends = (filters.SearchFilter, )
-    search_fields = (
-        'name',)
+    permission_classes = (IsAdminOrReadOnly,)
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
+    lookup_field = 'slug'
 
 
 class TitlesViewSet(viewsets.ModelViewSet):
+    pagination_class = LimitOffsetPagination
     permission_classes = (IsAdminOrReadOnly,)
     queryset = Title.objects.annotate(rating=Avg('reviews__score')).all()
     filter_backends = (DjangoFilterBackend,)
@@ -152,6 +155,7 @@ class ReviewsViewSet(ModelViewSet):
 
 
 class CommentsViewSet(ModelViewSet):
+    pagination_class = LimitOffsetPagination
     serializer_class = CommentsSerializer
     permission_classes = (
         IsAuthenticatedOrReadOnly,

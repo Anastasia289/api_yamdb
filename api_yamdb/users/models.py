@@ -4,9 +4,9 @@ from django.db import models
 
 
 class User(AbstractUser):
-    ADMIN = 'admin'
-    MODERATOR = 'moderator'
     USER = 'user'
+    MODERATOR = 'moderator'
+    ADMIN = 'admin'
 
     USER_ROLES = (
         (USER, 'user'),
@@ -41,3 +41,15 @@ class User(AbstractUser):
     class Meta:
         verbose_name = 'Пользователь',
         verbose_name_plural = 'Пользователи'
+
+    @property
+    def is_user(self):
+        return self.role == self.USER
+
+    @property
+    def is_moderator(self):
+        return self.role == self.MODERATOR
+
+    @property
+    def is_admin(self):
+        return self.role == self.ADMIN

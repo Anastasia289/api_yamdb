@@ -9,27 +9,21 @@ from users.models import User
 
 
 class UserSerializer(serializers.ModelSerializer):
+
     username = serializers.RegexField(
         regex="^[\\w.@+-]+",
         max_length=150,
         required=True,
         validators=[UniqueValidator(queryset=User.objects.all())],)
 
-    def validate_username(self, value):
-        if value == "me":
-            raise serializers.ValidationError("Нельзя использовать 'me'.")
-        return value
-
-    def create(self, validated_data):
-        if self.is_valid():
-            user, created = User.objects.get_or_create(**validated_data)
-            user.save()
-        return user
-
     class Meta:
         model = User
         fields = ('username', 'email', 'first_name',
                   'last_name', 'bio', 'role')
+
+
+class UserWithoutRoleSerializer(UserSerializer):
+    role = serializers.StringRelatedField(read_only=True)
 
 
 class SignUpSerializer(serializers.ModelSerializer):
