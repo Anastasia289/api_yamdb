@@ -6,11 +6,31 @@ from django.db import models
 
 User = get_user_model()
 
+MAX_NAME_LENGTH = 256
+MAX_SLUG_LENGTH = 50
+
+
+class PubDate(models.Model):
+    """Абстрактная модель для времени"""
+
+    pub_date = models.DateTimeField(
+        'Дата добавления',
+        auto_now_add=True,
+        db_index=True
+        )
+
+    class Meta:
+        abstract = True
+
+    def __str__(self):
+        return self.pub_date
+
 
 class Category(models.Model):
     """Категории."""
-    name = models.CharField('наименование категории', max_length=256)
-    slug = models.SlugField('slug', unique=True, max_length=50)
+    name = models.CharField('наименование категории',
+                            max_length=MAX_NAME_LENGTH)
+    slug = models.SlugField('slug', unique=True, max_length=MAX_SLUG_LENGTH)
 
     class Meta:
         verbose_name = 'Категория'
@@ -22,8 +42,8 @@ class Category(models.Model):
 
 class Genre(models.Model):
     """Жанры."""
-    name = models.CharField('имя жанра', max_length=256)
-    slug = models.SlugField('slug', unique=True, max_length=50)
+    name = models.CharField('имя жанра', max_length=MAX_NAME_LENGTH)
+    slug = models.SlugField('slug', unique=True, max_length=MAX_SLUG_LENGTH)
 
     class Meta:
         verbose_name = 'Жанр'
@@ -36,7 +56,7 @@ class Genre(models.Model):
 class Title(models.Model):
     """Произведения."""
 
-    name = models.CharField('Наименование', max_length=256)
+    name = models.CharField('Наименование', max_length=MAX_NAME_LENGTH)
     year = models.IntegerField(
         'год создания',
         validators=[MaxValueValidator(
@@ -57,7 +77,7 @@ class Title(models.Model):
         return self.name
 
 
-class Review(models.Model):
+class Review(PubDate):
     """Отзыв к произведению."""
 
     author = models.ForeignKey(
@@ -78,11 +98,11 @@ class Review(models.Model):
             MaxValueValidator(10)
         )
     )
-    pub_date = models.DateTimeField(
-        'Дата добавления',
-        auto_now_add=True,
-        db_index=True
-    )
+    # pub_date = models.DateTimeField(
+    #     'Дата добавления',
+    #     auto_now_add=True,
+    #     db_index=True
+    # )
 
     class Meta:
         verbose_name = 'Отзыв'
@@ -99,7 +119,7 @@ class Review(models.Model):
         return self.text
 
 
-class Comments(models.Model):
+class Comments(PubDate):
     """Комментарий к отзыву."""
 
     author = models.ForeignKey(
@@ -113,11 +133,11 @@ class Comments(models.Model):
         related_name='comments'
     )
     text = models.TextField()
-    pub_date = models.DateTimeField(
-        'Дата добавления',
-        auto_now_add=True,
-        db_index=True
-    )
+    # pub_date = models.DateTimeField(
+    #     'Дата добавления',
+    #     auto_now_add=True,
+    #     db_index=True
+    # )
 
     class Meta:
         verbose_name = 'комментарий'
