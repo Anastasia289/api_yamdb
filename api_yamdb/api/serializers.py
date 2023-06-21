@@ -3,6 +3,7 @@ from django.core.validators import RegexValidator
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
+
 from reviews import models
 from users.models import User
 
@@ -39,20 +40,22 @@ class SignUpSerializer(serializers.ModelSerializer):
     )
     email = serializers.EmailField(max_length=254)
 
-    def create(self, validated_data):
-        if User.objects.filter(
-            username=validated_data.get('username')
+    def validate(self, validated_data):
+        if (
+                User.objects.filter(email=validated_data['email']).exists()
+                and User.objects.get(email=validated_data['email']).username
+                != validated_data['username']
         ):
             raise serializers.ValidationError(
-                'Данный username уже существует. Выберите другой.'
-            )
-        if User.objects.filter(
-            email=validated_data.get('email')
+                'Данный username уже существует. Выберите другой.')
+        if (
+                User.objects.filter(username=validated_data['username']).exists()
+                and User.objects.get(username=validated_data['username']).email
+                != validated_data['email']
         ):
             raise serializers.ValidationError(
-                'Данный Email уже существует. Выберите другой.'
-            )
-        return User.objects.create(validated_data)
+                'Данный Email уже существует. Выберите другой.',)
+        return validated_data
 
     class Meta:
         model = User
