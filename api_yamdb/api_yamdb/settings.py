@@ -1,13 +1,28 @@
 import os
 from pathlib import Path
 
+from django.core.management import utils
+from dotenv import load_dotenv
+
+load_dotenv()
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'p&l%385148kslhtyn^##a1)ilz@4zqj=rq&agdol^##zgl9(vs'
+SECRET_KEY = os.getenv('SECRET_KEY', default=utils.get_random_secret_key())
 
-DEBUG = True
+DEBUG = os.getenv('DEBUG')
+
+if DEBUG == 'True':
+    DEBUG = True
+elif DEBUG == 'False':
+    DEBUG = False
+else:
+    raise Exception('Проверьте переменные окружения')
 
 ALLOWED_HOSTS = ['*']
+if not DEBUG:
+    ALLOWED_HOSTS += [os.getenv('ALLOWED_HOSTS')]
+
 
 AUTH_USER_MODEL = 'users.User'
 
