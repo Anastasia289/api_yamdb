@@ -16,8 +16,7 @@ class PubDate(models.Model):
     pub_date = models.DateTimeField(
         'Дата добавления',
         auto_now_add=True,
-        db_index=True
-        )
+        db_index=True)
 
     class Meta:
         abstract = True
