@@ -10,14 +10,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv('SECRET_KEY', default=utils.get_random_secret_key())
 
-DEBUG = os.getenv('DEBUG')
 
-if DEBUG == 'True':
-    DEBUG = True
-elif DEBUG == 'False':
-    DEBUG = False
-else:
-    raise Exception('Проверьте переменные окружения')
+def get_debug():
+    DEBUG = os.getenv('DEBUG')
+    if DEBUG == 'False':
+        DEBUG = False
+    else:
+        DEBUG == 'True'
+    return DEBUG
+
+
+DEBUG = get_debug()
 
 ALLOWED_HOSTS = []
 if not DEBUG:
