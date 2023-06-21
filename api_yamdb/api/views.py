@@ -1,9 +1,6 @@
-from api import permissions, serializers
-from api.mixins import CreateListDestroyViewSet
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.core.management.utils import get_random_secret_key
-from django.db import IntegrityError
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -17,10 +14,12 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.tokens import AccessToken
-from reviews.models import Category, Genre, Review, Title
-from users.models import User
 
 from .filters import TitleFilter
+from api import permissions, serializers
+from api.mixins import CreateListDestroyViewSet
+from reviews.models import Category, Genre, Review, Title
+from users.models import User
 
 
 class SignUpView(APIView):
@@ -35,10 +34,7 @@ class SignUpView(APIView):
     def post(self, request):
         serializer = serializers.SignUpSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        try:
-            user, _ = User.objects.get_or_create(**serializer.validated_data)
-        except IntegrityError:
-            return Response(request.data, status=status.HTTP_400_BAD_REQUEST)
+        user, _ = User.objects.get_or_create(**serializer.validated_data)
         confirmation_code = get_random_secret_key()
         send_mail(
             'Код подтверждения',
