@@ -19,7 +19,7 @@ elif DEBUG == 'False':
 else:
     raise Exception('Проверьте переменные окружения')
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = []
 if not DEBUG:
     ALLOWED_HOSTS += [os.getenv('ALLOWED_HOSTS')]
 

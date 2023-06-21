@@ -45,3 +45,4 @@ class Command(BaseCommand):
                 except Exception as error:
                     self.stderr.write('Упс, загрухка {datafile_csv}'
                                       f'не удалась: {error}')
+                    print(settings.DEBUG)
