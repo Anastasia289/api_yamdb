@@ -29,7 +29,7 @@ class SignUpView(APIView):
     YaMDB отправляет письмо с кодом подтверждения на почтовый адрес.
     """
     queryset = User.objects.all()
-    serializer_class = SignUpSerializer
+    serializer_class = serializers.SignUpSerializer
     permission_classes = (AllowAny,)
 
     def post(self, request):

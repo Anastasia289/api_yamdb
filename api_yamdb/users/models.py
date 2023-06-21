@@ -2,7 +2,8 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 from django.db import models
 
-MAX_CHAR_LENGTH=150
+MAX_CHAR_LENGTH = 150
+
 
 class User(AbstractUser):
     USER = 'user'
