@@ -41,19 +41,19 @@ class SignUpSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(max_length=254)
 
     def create(self, validated_data):
-        existing_username = User.objects.filter(
+        if User.objects.filter(
             username=validated_data.get('username')
-        ).first()
-        existing_email = User.objects.filter(
+        ):
+            raise serializers.ValidationError(
+                'Данный username уже существует. Выберите другой.'
+            )
+        if User.objects.filter(
             email=validated_data.get('email')
-        ).first()
-        if any([existing_username, existing_email]):
-            if existing_username == existing_email:
-                return existing_username
+        ):
             raise serializers.ValidationError(
                 'Данный Email уже существует. Выберите другой.'
             )
-        return User.objects.create(**validated_data)
+        return User.objects.create(validated_data)
 
     class Meta:
         model = User
