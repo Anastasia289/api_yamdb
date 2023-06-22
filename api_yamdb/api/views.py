@@ -15,8 +15,8 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.tokens import AccessToken
 
-from .filters import TitleFilter
 from api import permissions, serializers
+from api.filters import TitleFilter
 from api.mixins import CreateListDestroyViewSet
 from reviews.models import Category, Genre, Review, Title
 from users.models import User
