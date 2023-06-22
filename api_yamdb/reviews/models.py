@@ -10,6 +10,21 @@ MAX_NAME_LENGTH = 256
 MAX_SLUG_LENGTH = 50
 
 
+class PubDateModel(models.Model):
+    """Абстрактная модель для времени"""
+
+    pub_date = models.DateTimeField(
+        'Дата добавления',
+        auto_now_add=True,
+        db_index=True)
+
+    class Meta:
+        abstract = True
+
+    def __str__(self):
+        return self.pub_date
+
+
 class Category(models.Model):
     """Категории."""
     name = models.CharField('наименование категории',
@@ -64,7 +79,7 @@ class Title(models.Model):
         return self.name
 
 
-class Review(models.Model):
+class Review(PubDateModel):
     """Отзыв к произведению."""
 
     author = models.ForeignKey(
@@ -85,11 +100,6 @@ class Review(models.Model):
             MaxValueValidator(10)
         )
     )
-    pub_date = models.DateTimeField(
-        'Дата добавления',
-        auto_now_add=True,
-        db_index=True
-    )
 
     class Meta:
         verbose_name = 'Отзыв'
@@ -106,7 +116,7 @@ class Review(models.Model):
         return self.text
 
 
-class Comments(models.Model):
+class Comments(PubDateModel):
     """Комментарий к отзыву."""
 
     author = models.ForeignKey(
@@ -120,11 +130,6 @@ class Comments(models.Model):
         related_name='comments'
     )
     text = models.TextField()
-    pub_date = models.DateTimeField(
-        'Дата добавления',
-        auto_now_add=True,
-        db_index=True
-    )
 
     class Meta:
         verbose_name = 'комментарий'

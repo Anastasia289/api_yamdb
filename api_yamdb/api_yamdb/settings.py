@@ -10,21 +10,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv('SECRET_KEY', default=utils.get_random_secret_key())
 
+if os.environ.get('DEBUG') == 'True':
+    DEBUG = True
+else:
+    DEBUG = False
 
-def get_debug():
-    DEBUG = os.getenv('DEBUG')
-    if DEBUG == 'False':
-        DEBUG = False
-    else:
-        DEBUG == 'True'
-    return DEBUG
-
-
-DEBUG = get_debug()
-
-ALLOWED_HOSTS = []
-if not DEBUG:
-    ALLOWED_HOSTS += [os.getenv('ALLOWED_HOSTS')]
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split()
 
 
 AUTH_USER_MODEL = 'users.User'

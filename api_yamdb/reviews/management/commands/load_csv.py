@@ -10,7 +10,6 @@ MODELS_AND_FILES = {
     User: 'users.csv',
     models.Genre: 'genre.csv',
     models.Title: 'titles.csv',
-    models.GenreTitle: 'genre_title.csv',
     models.Review: 'review.csv',
     models.Comments: 'comments.csv',
 }
@@ -45,4 +44,3 @@ class Command(BaseCommand):
                 except Exception as error:
                     self.stderr.write('Упс, загрухка {datafile_csv}'
                                       f'не удалась: {error}')
-                    print(settings.DEBUG)
