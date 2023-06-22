@@ -10,21 +10,6 @@ MAX_NAME_LENGTH = 256
 MAX_SLUG_LENGTH = 50
 
 
-class PubDate(models.Model):
-    """Абстрактная модель для времени"""
-
-    pub_date = models.DateTimeField(
-        'Дата добавления',
-        auto_now_add=True,
-        db_index=True)
-
-    class Meta:
-        abstract = True
-
-    def __str__(self):
-        return self.pub_date
-
-
 class Category(models.Model):
     """Категории."""
     name = models.CharField('наименование категории',
@@ -65,8 +50,11 @@ class Title(models.Model):
         Category, on_delete=models.SET_NULL, related_name='titles', null=True,
         verbose_name='Категория',)
     description = models.TextField('Описание')
-    genre = models.ManyToManyField(Genre,
-                                   through='GenreTitle', related_name='titles')
+    genre = models.ManyToManyField(
+        Genre,
+        blank=True,
+        related_name="titles"
+    )
 
     class Meta:
         verbose_name = 'Произведение'
@@ -76,7 +64,7 @@ class Title(models.Model):
         return self.name
 
 
-class Review(PubDate):
+class Review(models.Model):
     """Отзыв к произведению."""
 
     author = models.ForeignKey(
@@ -97,11 +85,11 @@ class Review(PubDate):
             MaxValueValidator(10)
         )
     )
-    # pub_date = models.DateTimeField(
-    #     'Дата добавления',
-    #     auto_now_add=True,
-    #     db_index=True
-    # )
+    pub_date = models.DateTimeField(
+        'Дата добавления',
+        auto_now_add=True,
+        db_index=True
+    )
 
     class Meta:
         verbose_name = 'Отзыв'
@@ -118,7 +106,7 @@ class Review(PubDate):
         return self.text
 
 
-class Comments(PubDate):
+class Comments(models.Model):
     """Комментарий к отзыву."""
 
     author = models.ForeignKey(
@@ -132,11 +120,11 @@ class Comments(PubDate):
         related_name='comments'
     )
     text = models.TextField()
-    # pub_date = models.DateTimeField(
-    #     'Дата добавления',
-    #     auto_now_add=True,
-    #     db_index=True
-    # )
+    pub_date = models.DateTimeField(
+        'Дата добавления',
+        auto_now_add=True,
+        db_index=True
+    )
 
     class Meta:
         verbose_name = 'комментарий'
@@ -144,26 +132,3 @@ class Comments(PubDate):
 
     def __str__(self):
         return self.text
-
-
-class GenreTitle(models.Model):
-    """Модель для загрузки данных. Сопоставляет жанры и произведения."""
-
-    genre = models.ForeignKey(
-        Genre,
-        on_delete=models.CASCADE,
-        verbose_name='Жанр'
-    )
-    title = models.ForeignKey(
-        Title,
-        on_delete=models.CASCADE,
-        verbose_name='произведение'
-    )
-
-    class Meta:
-        verbose_name = 'Жанры-произведение'
-        verbose_name_plural = 'Жанры-произведения'
-        ordering = ('id',)
-
-    def __str__(self):
-        return f'{self.title} - {self.genre}'

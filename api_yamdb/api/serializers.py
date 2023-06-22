@@ -49,7 +49,8 @@ class SignUpSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'Данный username уже существует. Выберите другой.')
         if (
-                User.objects.filter(username=validated_data['username']).exists()
+                User.objects.filter(
+                    username=validated_data['username']).exists()
                 and User.objects.get(username=validated_data['username']).email
                 != validated_data['email']
         ):
